@@ -7,9 +7,10 @@ blackness on a white background, like handwritten digit recognition, the
 Bernoulli Restricted Boltzmann machine model (:class:`BernoulliRBM
 <sklearn.neural_network.BernoulliRBM>`) can perform effective non-linear
 feature extraction.
+
+                      Noam Mirjani 315216515
+                    Yaakov Haimoff 318528510
 """
-# Authors: Noam Mirjani
-# Yaakov Haimoff 318528510
 
 # %%
 # Generate data
@@ -21,27 +22,31 @@ feature extraction.
 import numpy as np
 import time
 from scipy.ndimage import convolve
-
 from sklearn import datasets
 from sklearn.preprocessing import minmax_scale
-
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 
 def fitting_time():
+    """ plot the fit time array"""
     plt.figure()
-    asix = [i**2 for i in range(2, 22)]
-    plt.plot(asix, fit_time)
+    axis = [i ** 2 for i in range(2, 21)]
+    plt.plot(axis, fit_time)
     plt.xlabel('Number of components')
     plt.ylabel('Fitting time (seconds)')
     plt.title('RBM fitting time')
 
 
-def precisions():
+def rbm_precisions():
     plt.figure()
-    plt.plot(rbm_predictions_avg_lst)
-    plt.figure()
-    plt.plot(raw_pixel_predictions_avg_lst)
+    axis = [i ** 2 for i in range(2, 21)]
+    plt.plot(axis, rbm_predictions_avg_lst)
+    # Plot the horizontal line
+    plt.axhline(y=0.78, color='r', linestyle='-')
+    plt.xlabel('Number of components')
+    plt.ylabel('precisions')
+    plt.title('precisions vs number of components')
 
 
 def nudge_dataset(X, Y):
@@ -110,12 +115,14 @@ raw_pixel_predictions_avg_lst = []
 
 fit_time = []
 for x in range(2, 21):
+
+    start = time.perf_counter()
+
     # More components tend to give better prediction performance, but larger
     # fitting time
     rbm.n_components = x ** 2
     logistic.C = 6000
 
-    start = time.perf_counter()
     # Training RBM-Logistic Pipeline
     rbm_features_classifier.fit(X_train, Y_train)
 
@@ -155,10 +162,7 @@ for x in range(2, 21):
     # %%
     # Plotting
     # --------
-    import matplotlib.pyplot as plt
-
     plt.figure(figsize=(4.2, 4))
-
     for i, comp in enumerate(rbm.components_):
         plt.subplot(x, x, i + 1)
         plt.imshow(comp.reshape((8, 8)), cmap=plt.cm.gray_r, interpolation="nearest")
@@ -167,7 +171,15 @@ for x in range(2, 21):
         plt.suptitle(f"{x * x} components extracted by RBM", fontsize=16)
         plt.subplots_adjust(0.08, 0.02, 0.92, 0.85, 0.08, 0.23)
 
+''' 2c'''
 
 fitting_time()
+rbm_precisions()
+
+''' 2d1 '''
+print("X_train shape:", X_train.shape)
+print("X_test shape:", X_test.shape)
+print("rbm.transform(X_train) shape:", rbm.transform(X_train).shape)
+print("rbm.intercept_hidden_ shape:", rbm.intercept_hidden_.shape)
 
 plt.show()
